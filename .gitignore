@@ -5,3 +5,4 @@ blogs/__pycache__/*
 catalog/__pycache__/*
 users/__pycache__*
 config/__pycache__*
+.idea/*
