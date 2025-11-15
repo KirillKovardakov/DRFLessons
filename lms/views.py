@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from rest_framework import viewsets, generics
+
 from .models import Course, Lesson
 from lms.serializers import CourseSerializer, LessonSerializer
 
