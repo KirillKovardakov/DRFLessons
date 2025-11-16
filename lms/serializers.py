@@ -11,7 +11,8 @@ class LessonSerializer(ModelSerializer):
 class LessonsByCourseSerializer(ModelSerializer):
     class Meta:
         model = Lesson
-        fields = ['name', 'description', 'preview', 'video_url', ]
+        fields = ['id', 'name', 'description', 'preview', 'video_url', 'author', ]
+        read_only_fields = ['author']
 
 
 class CourseSerializer(ModelSerializer):
@@ -31,4 +32,6 @@ class CourseSerializer(ModelSerializer):
             'created_at',
             'lessons_count',
             'lessons',
+            'author',
         ]
+        read_only_fields = ['author']

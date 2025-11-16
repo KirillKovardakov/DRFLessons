@@ -3,7 +3,7 @@ from lms.models import Lesson, Course
 
 
 class Command(BaseCommand):
-    help = 'Add test courses to the database'
+    help = 'Add test lessons to the database'
 
     def handle(self, *args, **kwargs):
         course1, _ = Course.objects.get_or_create(id=1)

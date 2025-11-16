@@ -1,11 +1,11 @@
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, SerializerMethodField
 from .models import CustomUser, Payments
 
 
 class PaymentSerializer(ModelSerializer):
     class Meta:
         model = Payments
-        fields = ['user', 'paid_course', 'paid_lesson', 'amount', 'method', ]
+        fields = ['id', 'user', 'paid_course', 'paid_lesson', 'amount', 'method', ]
 
 
 class UserSerializer(ModelSerializer):
@@ -13,4 +13,5 @@ class UserSerializer(ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ['email', 'phone_number', 'country', 'payments', ]
+        fields = ['id', 'email', 'phone_number', 'country', 'payments', 'is_active', 'user_permissions', 'password',]
+        # fields='__all__'
