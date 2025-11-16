@@ -14,7 +14,6 @@ DEBUG = True if os.getenv('DEBUG') == 'True' else False
 
 ALLOWED_HOSTS = []
 
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -27,6 +26,7 @@ INSTALLED_APPS = [
     'users',
 
     'rest_framework',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -58,7 +58,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -69,8 +68,6 @@ DATABASES = {
         'PORT': os.getenv('DBPORT')
     }
 }
-
-
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -87,8 +84,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
@@ -96,8 +91,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
-
 
 STATIC_URL = 'static/'
 
