@@ -4,7 +4,7 @@ from lms.models import Course, Lesson
 
 
 class Command(BaseCommand):
-    help = 'Add test courses to the database'
+    help = 'Add test payments to the database'
 
     def handle(self, *args, **kwargs):
         user, _ = CustomUser.objects.get_or_create(id=1)
