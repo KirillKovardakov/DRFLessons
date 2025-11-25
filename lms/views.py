@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from drf_spectacular.utils import extend_schema_view, extend_schema
 from rest_framework import viewsets, generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
@@ -10,18 +11,35 @@ from .models import Course, Lesson, Subscription
 from lms.serializers import CourseSerializer, LessonSerializer, SubscriptionSerializer
 
 
+@extend_schema_view(
+    list=extend_schema(
+        summary="Получить список курсов",
+    ),
+    update=extend_schema(
+        summary="Изменение курса по ID",
+    ),
+    partial_update=extend_schema(summary="Изменение какой-то части курса по ID", ),
+    create=extend_schema(
+        summary="Создать новый курс",
+        description="При создании курса автоматически к автору привязывается пользователь который создаёт этот курс",
+    ),
+    retrieve=extend_schema(summary="Просмотр существующего курса по ID"),
+    destroy=extend_schema(summary="Удалить курс по ID")
+)
 class CourseViewSet(viewsets.ModelViewSet):
     serializer_class = CourseSerializer
 
     def get_queryset(self):
+        """Обычный пользователь может видеть только свои курсы. Модераторы - все"""
         user = self.request.user
-
+        # return Course.objects.all()
         if user.groups.filter(name="Модератор").exists():
             return Course.objects.all()
 
-        return Course.objects.filter(author=user)
+        return Course.objects.filter(author=user.id)
 
     def perform_create(self, serializer):
+        """Автоматически привязывает пользователя в качестве автора при создании курса"""
         serializer.save(author=self.request.user)
 
     def get_permissions(self):
@@ -34,6 +52,7 @@ class CourseViewSet(viewsets.ModelViewSet):
         return [permission() for permission in self.permission_classes]
 
 
+@extend_schema(summary="Создать новый урок")
 class LessonCreateAPIView(generics.CreateAPIView):
     serializer_class = LessonSerializer
     permission_classes = [IsAuthenticated, ~IsModer]
@@ -42,6 +61,7 @@ class LessonCreateAPIView(generics.CreateAPIView):
         serializer.save(author=self.request.user)
 
 
+@extend_schema(summary="Получить список уроков")
 class LessonListAPIView(generics.ListAPIView):
     serializer_class = LessonSerializer
     permission_classes = [IsAuthenticated, IsModer | IsOwner]
@@ -55,18 +75,21 @@ class LessonListAPIView(generics.ListAPIView):
         return Lesson.objects.filter(author=user)
 
 
+@extend_schema(summary="Просмотр существующего урока по ID")
 class LessonRetrieveAPIView(generics.RetrieveAPIView):
     serializer_class = LessonSerializer
     queryset = Lesson.objects.all()
     permission_classes = [IsAuthenticated, IsModer | IsOwner]
 
 
+@extend_schema(summary="Изменение урока по ID")
 class LessonUpdateAPIView(generics.UpdateAPIView):
     serializer_class = LessonSerializer
     queryset = Lesson.objects.all()
     permission_classes = [IsAuthenticated, IsModer | IsOwner]
 
 
+@extend_schema(summary="Удалить урок по ID")
 class LessonDestroyAPIView(generics.DestroyAPIView):
     queryset = Lesson.objects.all()
     permission_classes = [IsAuthenticated, IsOwner | ~IsModer]

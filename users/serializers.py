@@ -5,7 +5,7 @@ from .models import CustomUser, Payments
 class PaymentSerializer(ModelSerializer):
     class Meta:
         model = Payments
-        fields = ['id', 'user', 'paid_course', 'paid_lesson', 'amount', 'method', ]
+        fields = ['id', 'user', 'paid_course', 'paid_lesson', 'amount', 'method',  'session_id',  'link', ]
 
 
 class UserSerializer(ModelSerializer):
