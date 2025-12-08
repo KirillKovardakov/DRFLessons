@@ -51,9 +51,13 @@ class Payments(models.Model):
         verbose_name="Оплаченный урок",
         related_name="lesson_payments"
     )
-    amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Сумма оплаты")
+    amount = models.PositiveIntegerField(verbose_name="Сумма оплаты")
 
     method = models.CharField(max_length=20, choices=PAYMENT_METHODS, verbose_name="Способ оплаты")
+
+    session_id = models.CharField(max_length=255, blank=True, null=True, verbose_name='Id сессии',
+                                  help_text='Укажите Id сессии')
+    link = models.TextField(blank=True, null=True, verbose_name='Ссылка на оплату')
 
     def __str__(self):
         item = self.paid_course or self.paid_lesson
