@@ -8,7 +8,7 @@ class IsModer(permissions.BasePermission):
     message = 'Adding customer not allowed.'
 
     def has_permission(self, request, view):
-        return request.user.groups.filter(name='Модератор').exists()
+        return request.user.groups.filter(name=' ').exists()
 
 
 class IsOwner(permissions.BasePermission):

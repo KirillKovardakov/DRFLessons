@@ -3,7 +3,7 @@ from .models import CustomUser, Payments
 
 @admin.register(CustomUser)
 class UsersAdmin(admin.ModelAdmin):
-    list_display = ('email', 'username','country','is_superuser','is_staff')
+    list_display = ('email', 'username','country','is_superuser','is_staff', 'is_active', 'last_login')
     list_filter = ('email','country')
     search_fields = ('email','country',)
 

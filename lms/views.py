@@ -1,5 +1,6 @@
+from django.db.models import UUIDField
 from django.shortcuts import render
-from drf_spectacular.utils import extend_schema_view, extend_schema
+from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter
 from rest_framework import viewsets, generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
@@ -9,6 +10,7 @@ from django.shortcuts import get_object_or_404
 from users.permissions import IsOwner, IsModer
 from .models import Course, Lesson, Subscription
 from lms.serializers import CourseSerializer, LessonSerializer, SubscriptionSerializer
+from .tasks import send_course_update_notifications
 
 
 @extend_schema_view(
@@ -41,6 +43,11 @@ class CourseViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """Автоматически привязывает пользователя в качестве автора при создании курса"""
         serializer.save(author=self.request.user)
+
+    def perform_update(self, serializer):
+        course = serializer.save()
+        print(course.id)
+        send_course_update_notifications.delay(course.id)
 
     def get_permissions(self):
         if self.action == 'create':
@@ -94,9 +101,12 @@ class LessonDestroyAPIView(generics.DestroyAPIView):
     queryset = Lesson.objects.all()
     permission_classes = [IsAuthenticated, IsOwner | ~IsModer]
 
-
+# @extend_schema(parameters=[
+#             OpenApiParameter(name='course', description='Subscription by course id', required=True, type=int,),
+#         ],course=None)
 class SubscriptionToggleView(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = SubscriptionSerializer
 
     def post(self, request, *args, **kwargs):
         user = request.user
