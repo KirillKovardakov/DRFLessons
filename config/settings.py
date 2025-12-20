@@ -68,7 +68,7 @@ DATABASES = {
         'NAME': os.getenv('DBNAME'),
         'USER': os.getenv('DBUSER'),
         'PASSWORD': os.getenv('DBPASSWORD'),
-        'HOST': os.getenv('DBHOST'),
+        'HOST': os.getenv('DBHOST', 'db'),
         'PORT': os.getenv('DBPORT')
     }
 }
@@ -97,6 +97,10 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = 'static/'
+
+PROJECT_DIR=os.path.dirname(__file__)
+
+STATIC_ROOT= os.path.join(PROJECT_DIR,'static/')
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
