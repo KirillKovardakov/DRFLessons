@@ -60,3 +60,17 @@ docker-compose down
 Используйте флаг -v, чтобы удалить тома с базой данных:
 
 ```docker-compose down -v```
+
+## Deployment
+
+1. Настроить сервер (Ubuntu 22.04)
+2. Установить Docker и docker-compose
+3. Добавить `.env`
+4. Запустить:
+   docker-compose up -d --build
+
+## CI/CD
+
+- При каждом push в `develop`:
+  - запускаются тесты
+  - при успехе — деплой на сервер
