@@ -40,7 +40,7 @@ jobs:
           DBPASSWORD: postgres
           DBHOST: localhost
           DBPORT: 5432
-        run: poetry run pytest
+        run: python manage.py test
 
   deploy:
     needs: tests
