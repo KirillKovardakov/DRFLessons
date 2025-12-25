@@ -29,22 +29,13 @@ jobs:
         with:
           path: .venv
           key: poetry-tests-dependencies-${{ hashFiles('**/poetry.lock') }}
+
       - name: Install dependencies
         run: poetry install --no-interaction --no-root
-        if: steps.poetry-cache.outputs.cache-hit != 'true'
-      - name: Setup project
-        run: poetry install
-      - name: Run tests
-        run: python manage.py test
 
-#      - name: Install Poetry
-#        run: pip install poetry
-#
-#      - name: Install dependencies
-#        run: pip install --upgrade pip && pip install poetry --no-root&&poetry config virtualenvs.create false
-#
-#        # Копируем файлы зависимостей
-#        COPY pyproject.toml poetry.lock* ./
+      - name: Run tests
+        run: poetry run python manage.py test
+
 
   deploy:
     needs: tests
