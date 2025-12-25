@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SECRET_KEY: ${{ secrets.ENV_SECRET_KEY }}
+      DBHOST: localhost
 
     steps:
     - name: Check out code
