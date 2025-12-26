@@ -81,7 +81,13 @@ jobs:
           ssh-private-key: ${{ secrets.SERVER_SSH_KEY }}
       - name: Copy project files to server
         run: |
-          ssh -T -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << "EOF"
+          echo "${{ secrets.SERVER_SSH_KEY }}" > key.pem
+          chmod 600 key.pem
+      
+          ssh -i key.pem -T -o StrictHostKeyChecking=no \
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << "EOF"
+            echo "Connected successfully"
+            EOF
           DEPLOY_DIR="${{ secrets.DEPLOY_DIR }}"
           # Проверка есть ли такая директория и клонирует в неё репозиторий
           if [ ! -d "\$DEPLOY_DIR/.git" ]; then
