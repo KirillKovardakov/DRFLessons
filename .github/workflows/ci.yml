@@ -25,10 +25,10 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v3
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.13'
+#      - name: Set up Python
+#        uses: actions/setup-python@v4
+#        with:
+#          python-version: '3.11'
 #      - name: Install Poetry
 #        run: pip install poetry
 #      - name: Install dependencies from cache
@@ -81,13 +81,9 @@ jobs:
           ssh-private-key: ${{ secrets.SERVER_SSH_KEY }}
       - name: Copy project files to server
         run: |
-          echo "${{ secrets.SERVER_SSH_KEY }}" > key.pem
-          chmod 600 key.pem
-      
           ssh -i key.pem -T -o StrictHostKeyChecking=no \
             ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << "EOF"
-            echo "Connected successfully"
-            EOF
+          echo "Connected successfully"
           DEPLOY_DIR="${{ secrets.DEPLOY_DIR }}"
           # Проверка есть ли такая директория и клонирует в неё репозиторий
           if [ ! -d "\$DEPLOY_DIR/.git" ]; then
