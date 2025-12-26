@@ -79,6 +79,9 @@ jobs:
         uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.SERVER_SSH_KEY }}
+      - name: Add server to known_hosts
+        run: |
+          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
       - name: Copy project files to server
         run: |
           ssh -i key.pem -T -o StrictHostKeyChecking=no \
