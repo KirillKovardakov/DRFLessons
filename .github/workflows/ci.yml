@@ -166,8 +166,8 @@ jobs:
           DBNAME=${{ secrets.DBNAME }}
           DBUSER=${{ secrets.DBUSER }}
           DBPASSWORD=${{ secrets.DBPASSWORD }}
-          DB_HOST=localhost
-          DB_PORT=5432
+          DBHOST=localhost
+          DBPORT=5432
           EOL
           EOF
 
