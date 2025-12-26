@@ -1,12 +1,5 @@
 
 services:
-  nginx:
-    build: .
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./html:/usr/share/nginx/html
   web:
     build: .
     container_name: drf_web
@@ -68,5 +61,11 @@ services:
       - redis
       - db
 
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - web
 volumes:
   postgres_data:
