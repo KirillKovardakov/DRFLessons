@@ -42,11 +42,11 @@ jobs:
       - name: Makemigrations
         env:
           SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
-          DB_NAME: lessons
-          DB_USER: postgres
-          DB_PASSWORD: 12345
-          DB_HOST: localhost
-          DB_PORT: 5432
+          DBNAME: lessons
+          DBUSER: postgres
+          DBPASSWORD: 12345
+          DBHOST: localhost
+          DBPORT: 5432
           EMAIL_HOST: smtp.yandex.ru
           EMAIL_PORT: 465
           EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
@@ -57,11 +57,11 @@ jobs:
       - name: Run tests
         env:
           SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
-          DB_NAME: lessons
-          DB_USER: postgres
-          DB_PASSWORD: 12345
-          DB_HOST: localhost
-          DB_PORT: 5432
+          DBNAME: lessons
+          DBUSER: postgres
+          DBPASSWORD: 12345
+          DBHOST: localhost
+          DBPORT: 5432
           EMAIL_HOST: smtp.mail.ru
           EMAIL_PORT: 465
           EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
