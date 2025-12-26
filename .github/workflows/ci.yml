@@ -6,29 +6,29 @@ on:
       - "*"
 
 jobs:
-#  tests:
-#    runs-on: ubuntu-latest
-#    services:
-#      postgres:
-#        image: postgres:16
-#        env:
-#          POSTGRES_USER: postgres
-#          POSTGRES_PASSWORD: 12345
-#          POSTGRES_DB: lessons
-#        ports:
-#          - 5432:5432
-#        options: >-
-#          --health-cmd pg_isready
-#          --health-interval 10s
-#          --health-timeout 5s
-#          --health-retries 5
-#    steps:
-#      - name: Check out code
-#        uses: actions/checkout@v3
-#      - name: Set up Python
-#        uses: actions/setup-python@v4
-#        with:
-#          python-version: '3.13'
+  tests:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 12345
+          POSTGRES_DB: lessons
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
 #      - name: Install Poetry
 #        run: pip install poetry
 #      - name: Install dependencies from cache
@@ -71,7 +71,7 @@ jobs:
 #        run: poetry run python manage.py test
 
   deploy:
-#    needs: tests
+    needs: tests
     runs-on: ubuntu-latest
 
     steps:
@@ -81,14 +81,7 @@ jobs:
           ssh-private-key: ${{ secrets.SERVER_SSH_KEY }}
       - name: Copy project files to server
         run: |
-#          ssh -T -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << "EOF"
-          echo "${{ secrets.SERVER_SSH_KEY }}" > key.pem
-          chmod 600 key.pem
-          
-          ssh -i key.pem -T -o StrictHostKeyChecking=no \
-          ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << "EOF"
-          echo "Connected successfully"
-          EOF
+          ssh -T -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << "EOF"
           DEPLOY_DIR="${{ secrets.DEPLOY_DIR }}"
           # Проверка есть ли такая директория и клонирует в неё репозиторий
           if [ ! -d "\$DEPLOY_DIR/.git" ]; then
