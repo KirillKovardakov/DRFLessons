@@ -28,8 +28,6 @@ services:
       POSTGRES_DB: ${DBNAME}
       POSTGRES_USER: ${DBUSER}
       POSTGRES_PASSWORD: ${DBPASSWORD}
-    ports:
-      - "5432:5432"
 
   redis:
     image: redis:7
