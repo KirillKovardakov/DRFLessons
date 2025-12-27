@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Устанавливаем Poetry через pip (САМЫЙ НАДЁЖНЫЙ СПОСОБ)
+# Устанавливаем Poetry через pip
 RUN pip install --upgrade pip && pip install poetry
 
 # Отключаем виртуальные окружения poetry

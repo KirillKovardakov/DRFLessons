@@ -1,14 +1,13 @@
 
 services:
   web:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: drf_web
-    environment:
-      DATABASE_HOST: db
     command: >
       sh -c "
       python manage.py migrate &&
-      python manage.py collectstatic --noinput &&
       python manage.py runserver 0.0.0.0:8000
       "
     volumes:
@@ -17,6 +16,9 @@ services:
       - "8000:8000"
     env_file:
       - .env
+    environment:
+      DATABASE_HOST: db
+      REDIS_HOST: redis
     depends_on:
       - db
       - redis
@@ -32,14 +34,10 @@ services:
       POSTGRES_DB: ${DBNAME}
       POSTGRES_USER: ${DBUSER}
       POSTGRES_PASSWORD: ${DBPASSWORD}
-      ports:
-        - "5432:5432"
 
   redis:
     image: redis:7
     container_name: drf_redis
-    ports:
-      - "6379:6379"
 
   celery:
     build: .

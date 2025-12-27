@@ -91,11 +91,11 @@ jobs:
           # Проверка есть ли такая директория и клонирует в неё репозиторий
           if [ ! -d "\$DEPLOY_DIR/.git" ]; then
             echo "Cloning repository into \$DEPLOY_DIR..."
-            mkdir \$DEPLOY_DIR -p
-            git clone "https://github.com/KirillKovardakov/DRFLessons.git" "\$DEPLOY_DIR"
+            mkdir $DEPLOY_DIR -p
+            git clone "https://github.com/KirillKovardakov/DRFLessons.git" "$DEPLOY_DIR"
           fi
-          echo "\$DEPLOY_DIR"
-          cd "\$DEPLOY_DIR"
+          echo "$DEPLOY_DIR"
+          cd "$DEPLOY_DIR"
           git fetch origin
           git checkout "task_35.2"
           git reset --hard "origin/task_35.2"
@@ -166,19 +166,20 @@ jobs:
           DBNAME=${{ secrets.DBNAME }}
           DBUSER=${{ secrets.DBUSER }}
           DBPASSWORD=${{ secrets.DBPASSWORD }}
-          DBHOST=localhost
+          DBHOST=db
           DBPORT=5432
           EOL
           EOF
 
       - name: Apply migrations
         run: |
-          ssh -T -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << "EOF"
-          DEPLOY_DIR="${{ secrets.DEPLOY_DIR }}"
-          cd "\$DEPLOY_DIR"
-          PGPASSWORD='${{ secrets.DBPASSWORD }}' psql -h localhost -U ${{ secrets.DBUSER }} -d ${{ secrets.DBNAME }} -c "SELECT 1;" || exit 1
-          ~/.local/bin/poetry run python manage.py makemigrations
-          ~/.local/bin/poetry run python manage.py migrate --no-input
+          ssh -i key.pem -T -o StrictHostKeyChecking=no \
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << EOF
+      
+          cd ${{ secrets.DEPLOY_DIR }}
+      
+          docker compose exec web python manage.py migrate --no-input
+      
           EOF
 
       - name: Install and start Docker
