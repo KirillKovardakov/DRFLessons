@@ -16,9 +16,6 @@ services:
       - "8000:8000"
     env_file:
       - .env
-    environment:
-      DATABASE_HOST: db
-      REDIS_HOST: redis
     depends_on:
       - db
       - redis
@@ -34,10 +31,14 @@ services:
       POSTGRES_DB: ${DBNAME}
       POSTGRES_USER: ${DBUSER}
       POSTGRES_PASSWORD: ${DBPASSWORD}
+    ports:
+      - "5432:5432"
 
   redis:
     image: redis:7
     container_name: drf_redis
+    ports:
+      - "6379:6379"
 
   celery:
     build: .
@@ -60,6 +61,7 @@ services:
     env_file:
       - .env
     depends_on:
+      - celery
       - redis
       - db
 
