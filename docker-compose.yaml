@@ -3,6 +3,8 @@ services:
   web:
     build: .
     container_name: drf_web
+    environment:
+      DATABASE_HOST: db
     command: >
       sh -c "
       python manage.py migrate &&
@@ -30,6 +32,8 @@ services:
       POSTGRES_DB: ${DBNAME}
       POSTGRES_USER: ${DBUSER}
       POSTGRES_PASSWORD: ${DBPASSWORD}
+      ports:
+        - "5432:5432"
 
   redis:
     image: redis:7
