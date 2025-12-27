@@ -100,7 +100,7 @@ jobs:
           git checkout "task_35.2"
           git reset --hard "origin/task_35.2"
           EOF
-      - name: Install dependencies on server
+      - name: Install poetry on server
         run: |
           ssh -T -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << "EOF"
           DEPLOY_DIR="${{ secrets.DEPLOY_DIR }}"
@@ -190,6 +190,11 @@ jobs:
           ssh -T -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << "EOF"
           DEPLOY_DIR="${{ secrets.DEPLOY_DIR }}"
           cd "$DEPLOY_DIR"
+          # Вырубаем postgresql чтобы не занимал порт для db образа
+          if ! systemctl is-active --quiet postgresql; then
+            echo "Stopping PostgreSQL..."
+            sudo systemctl stop postgresql
+          fi
           docker compose down
           docker compose up --build
           echo "Application started in background"
