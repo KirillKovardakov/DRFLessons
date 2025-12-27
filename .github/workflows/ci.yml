@@ -25,50 +25,50 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v3
-  #      - name: Set up Python
-  #        uses: actions/setup-python@v4
-  #        with:
-  #          python-version: '3.11'
-  #      - name: Install Poetry
-  #        run: pip install poetry
-  #      - name: Install dependencies from cache
-  #        id: poetry-cache
-  #        uses: actions/cache@v3
-  #        with:
-  #          path: .venv
-  #          key: poetry-tests-dependencies-${{ hashFiles('**/poetry.lock') }}
-  #      - name: Install dependencies
-  #        run: poetry install --no-root
-  #      - name: Makemigrations
-  #        env:
-  #          SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
-  #          DBNAME: lessons
-  #          DBUSER: postgres
-  #          DBPASSWORD: 12345
-  #          DBHOST: localhost
-  #          DBPORT: 5432
-  #          EMAIL_HOST: smtp.yandex.ru
-  #          EMAIL_PORT: 465
-  #          EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
-  #          EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
-  #          EMAIL_USE_TLS: False
-  #          EMAIL_USE_SSL: True
-  #        run: poetry run python manage.py makemigrations --noinput
-  #      - name: Run tests
-  #        env:
-  #          SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
-  #          DBNAME: lessons
-  #          DBUSER: postgres
-  #          DBPASSWORD: 12345
-  #          DBHOST: localhost
-  #          DBPORT: 5432
-  #          EMAIL_HOST: smtp.mail.ru
-  #          EMAIL_PORT: 465
-  #          EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
-  #          EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
-  #          EMAIL_USE_TLS: False
-  #          EMAIL_USE_SSL: True
-  #        run: poetry run python manage.py test
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install Poetry
+        run: pip install poetry
+      - name: Install dependencies from cache
+        id: poetry-cache
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: poetry-tests-dependencies-${{ hashFiles('**/poetry.lock') }}
+      - name: Install dependencies
+        run: poetry install --no-root
+      - name: Makemigrations
+        env:
+          SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+          DBNAME: lessons
+          DBUSER: postgres
+          DBPASSWORD: 12345
+          DBHOST: localhost
+          DBPORT: 5432
+          EMAIL_HOST: smtp.yandex.ru
+          EMAIL_PORT: 465
+          EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
+          EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
+          EMAIL_USE_TLS: False
+          EMAIL_USE_SSL: True
+        run: poetry run python manage.py makemigrations --noinput
+      - name: Run tests
+        env:
+          SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+          DBNAME: lessons
+          DBUSER: postgres
+          DBPASSWORD: 12345
+          DBHOST: localhost
+          DBPORT: 5432
+          EMAIL_HOST: smtp.mail.ru
+          EMAIL_PORT: 465
+          EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
+          EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
+          EMAIL_USE_TLS: False
+          EMAIL_USE_SSL: True
+        run: poetry run python manage.py test
 
   deploy:
     needs: tests
@@ -149,6 +149,6 @@ jobs:
             sudo systemctl stop postgresql
           fi
           docker compose down
-          docker compose up --build
+          docker compose up -d --build
           echo "Application started in background"
           EOF
