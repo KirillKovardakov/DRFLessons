@@ -1,0 +1,154 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - "*"
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 12345
+          POSTGRES_DB: lessons
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install Poetry
+        run: pip install poetry
+      - name: Install dependencies from cache
+        id: poetry-cache
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: poetry-tests-dependencies-${{ hashFiles('**/poetry.lock') }}
+      - name: Install dependencies
+        run: poetry install --no-root
+      - name: Makemigrations
+        env:
+          SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+          DBNAME: lessons
+          DBUSER: postgres
+          DBPASSWORD: 12345
+          DBHOST: localhost
+          DBPORT: 5432
+          EMAIL_HOST: smtp.yandex.ru
+          EMAIL_PORT: 465
+          EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
+          EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
+          EMAIL_USE_TLS: False
+          EMAIL_USE_SSL: True
+        run: poetry run python manage.py makemigrations --noinput
+      - name: Run tests
+        env:
+          SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+          DBNAME: lessons
+          DBUSER: postgres
+          DBPASSWORD: 12345
+          DBHOST: localhost
+          DBPORT: 5432
+          EMAIL_HOST: smtp.mail.ru
+          EMAIL_PORT: 465
+          EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
+          EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
+          EMAIL_USE_TLS: False
+          EMAIL_USE_SSL: True
+        run: poetry run python manage.py test
+
+  deploy:
+    needs: tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.SERVER_SSH_KEY }}
+      - name: Add server to known_hosts
+        run: |
+          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+      - name: Copy project files to server
+        run: |
+          ssh -i key.pem -T -o StrictHostKeyChecking=no \
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << "EOF"
+          echo "Connected successfully"
+          DEPLOY_DIR="${{ secrets.DEPLOY_DIR }}"
+          # Проверка есть ли такая директория и клонирует в неё репозиторий
+          if [ ! -d "\$DEPLOY_DIR/.git" ]; then
+            echo "Cloning repository into \$DEPLOY_DIR..."
+            mkdir $DEPLOY_DIR -p
+            git clone "https://github.com/KirillKovardakov/DRFLessons.git" "$DEPLOY_DIR"
+          fi
+          echo "$DEPLOY_DIR"
+          cd "$DEPLOY_DIR"
+          git fetch origin
+          git checkout "task_35.2"
+          git reset --hard "origin/task_35.2"
+          EOF
+      - name: Install poetry on server
+        run: |
+          ssh -T -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << "EOF"
+          DEPLOY_DIR="${{ secrets.DEPLOY_DIR }}"
+          cd "$DEPLOY_DIR"
+          curl -sSL https://install.python-poetry.org | python3 -
+          ~/.local/bin/poetry install --no-root
+          EOF
+
+      - name: Create .env file on server
+        run: |
+          ssh -T -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << "EOF"
+          DEPLOY_DIR="${{ secrets.DEPLOY_DIR }}"
+          cd "$DEPLOY_DIR"
+          cat > .env <<EOL
+          SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
+          DBNAME=${{ secrets.DBNAME }}
+          DBUSER=${{ secrets.DBUSER }}
+          DBPASSWORD=${{ secrets.DBPASSWORD }}
+          DBHOST=db
+          DBPORT=5432
+          EOL
+          EOF
+
+
+
+      - name: Install and start Docker
+        run: |
+          ssh -T -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << "EOF"
+          curl -fsSL https://get.docker.com -o get-docker.sh
+          sh get-docker.sh
+          # Запуск Docker демона
+          sudo systemctl start docker
+          sudo systemctl enable docker
+          docker --version
+          echo "Application Docker installed"
+          EOF
+
+      - name: Start Django application
+        run: |
+          ssh -T -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << "EOF"
+          DEPLOY_DIR="${{ secrets.DEPLOY_DIR }}"
+          cd "$DEPLOY_DIR"
+          # Вырубаем postgresql чтобы не занимал порт для db образа
+          if ! systemctl is-active --quiet postgresql; then
+            echo "Stopping PostgreSQL..."
+            sudo systemctl stop postgresql
+          fi
+          docker compose down
+          docker compose up -d --build
+          echo "Application started in background"
+          EOF
